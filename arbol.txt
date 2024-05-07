@@ -1,8 +1,7 @@
 Recorrido Preorder:
-¿Es un animal?
+
 
 Recorrido Inorder:
-¿Es un animal?
+
 
 Recorrido Postorder:
-¿Es un animal?

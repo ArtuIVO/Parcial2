@@ -108,35 +108,40 @@ def exportar_arbol(nodo, archivo):
 
 def jugar_adivinanzas(nodo):
     """Función para jugar al juego de adivinanzas recursivamente."""
-    while True:
-        respuesta = input(nodo.pregunta + " (y/n): ").lower()
+    respuesta = input(nodo.pregunta + " (y/n): ").lower()
 
+    while True:
         if respuesta == "y":
             if nodo.izquierda:
+                # Si hay una rama izquierda, continuar con la siguiente pregunta
                 jugar_adivinanzas(nodo.izquierda)
             else:
-                print("¡Adiviné correctamente!")
-                break  # Salir del bucle al adivinar correctamente
+                print("¡Adiviné correctamente!")  # Adivinó correctamente
+                break
         elif respuesta == "n":
             if nodo.derecha:
-                nodo = nodo.derecha  # Cambiar al siguiente nodo (nueva pregunta)
+                # Mostrar la siguiente pregunta en la rama derecha
+                respuesta = input(nodo.derecha.pregunta + " (y/n): ").lower()
             else:
-                # Si no se sabe la respuesta, se solicita al jugador la nueva pregunta y respuesta.
+                # No se adivinó y se necesita agregar una nueva pregunta
                 objeto = input("No sé qué es. ¿Qué es el objeto/animal/personaje que estabas pensando? ").lower()
                 nueva_pregunta = input(f"Escribe una pregunta que distinga {objeto} de {nodo.pregunta}. ")
-                respuesta_nueva_pregunta = input("¿Cuál sería la respuesta a tu pregunta? (y/n) ")
+                respuesta_nueva_pregunta = input(f"¿Cuál sería la respuesta a tu pregunta '{nueva_pregunta}'? (y/n) ").lower()
 
-                # Se actualiza el árbol con la nueva información.
-                nodo.derecha = Nodo(nodo.pregunta)
-                nodo.izquierda = Nodo(objeto)
-                nodo.pregunta = nueva_pregunta
+                # Crear el nuevo nodo con la nueva pregunta y objeto
+                nuevo_nodo = Nodo(nueva_pregunta)
+                nuevo_nodo.izquierda = Nodo(objeto)  # El nuevo objeto se convierte en la rama izquierda
+                nuevo_nodo.derecha = None
 
-                if respuesta_nueva_pregunta == "y":
-                    nodo.izquierda, nodo.derecha = nodo.derecha, nodo.izquierda
+                # Mostrar la nueva pregunta antes de solicitar la respuesta
+                respuesta = input(nueva_pregunta + " (y/n): ").lower()
 
-                # Volver a preguntar desde el nodo actualizado
-                jugar_adivinanzas(nodo)
-                break  # Salir del bucle después de agregar nueva pregunta
+                if respuesta == respuesta_nueva_pregunta:
+                    print("¡Adiviné correctamente!")  # Adivinó correctamente
+                else:
+                    print("No adiviné correctamente. ¡Voy a aprender más!")
+                    nodo.derecha = nuevo_nodo  # Conectar el nuevo nodo como siguiente pregunta
+                    break
 
 
 # Inicio del juego
