@@ -108,31 +108,35 @@ def exportar_arbol(nodo, archivo):
 
 def jugar_adivinanzas(nodo):
     """Función para jugar al juego de adivinanzas recursivamente."""
-    respuesta = input(nodo.pregunta + " (y/n): ").lower()
+    while True:
+        respuesta = input(nodo.pregunta + " (y/n): ").lower()
 
-    if respuesta == "y":
-        if nodo.izquierda:
-            jugar_adivinanzas(nodo.izquierda)
-        else:
-            print("¡Adiviné correctamente!")
-    elif respuesta == "n":
-        if nodo.derecha:
-            jugar_adivinanzas(nodo.derecha)
-        else:
-            # Si no se sabe la respuesta, se solicita al jugador la nueva pregunta y respuesta.
-            objeto = input("No sé qué es. ¿Qué es el objeto/animal/personaje que estabas pensando? ").lower()
-            nueva_pregunta = input("Escribe una pregunta que distinga {} de {}. ".format(objeto, nodo.pregunta))
-            respuesta_nueva_pregunta = input("¿Cuál sería la respuesta a tu pregunta? (y/n) ")
+        if respuesta == "y":
+            if nodo.izquierda:
+                jugar_adivinanzas(nodo.izquierda)
+            else:
+                print("¡Adiviné correctamente!")
+                break  # Salir del bucle al adivinar correctamente
+        elif respuesta == "n":
+            if nodo.derecha:
+                nodo = nodo.derecha  # Cambiar al siguiente nodo (nueva pregunta)
+            else:
+                # Si no se sabe la respuesta, se solicita al jugador la nueva pregunta y respuesta.
+                objeto = input("No sé qué es. ¿Qué es el objeto/animal/personaje que estabas pensando? ").lower()
+                nueva_pregunta = input(f"Escribe una pregunta que distinga {objeto} de {nodo.pregunta}. ")
+                respuesta_nueva_pregunta = input("¿Cuál sería la respuesta a tu pregunta? (y/n) ")
 
-            # Se actualiza el árbol con la nueva información.
-            nodo.derecha = Nodo(nodo.pregunta)
-            nodo.izquierda = Nodo(objeto)
-            nodo.pregunta = nueva_pregunta
+                # Se actualiza el árbol con la nueva información.
+                nodo.derecha = Nodo(nodo.pregunta)
+                nodo.izquierda = Nodo(objeto)
+                nodo.pregunta = nueva_pregunta
 
-            if respuesta_nueva_pregunta == "y":
-                nodo.izquierda, nodo.derecha = nodo.derecha, nodo.izquierda
-    else:
-        print("Respuesta erronea, vuelva a intentarlo")
+                if respuesta_nueva_pregunta == "y":
+                    nodo.izquierda, nodo.derecha = nodo.derecha, nodo.izquierda
+
+                # Volver a preguntar desde el nodo actualizado
+                jugar_adivinanzas(nodo)
+                break  # Salir del bucle después de agregar nueva pregunta
 
 
 # Inicio del juego
@@ -149,17 +153,20 @@ while jugar_de_nuevo == "y":
     jugar_de_nuevo = input("¿Quieres jugar de nuevo? (y/n) ").lower()
 
 print("¡Gracias por jugar!")
-print("Exportando arbol a txt")
+print("Exportando árbol a txt")
 exportar_arbol(arbol, "arbol.txt")
-a = input("Desea cargar un archivo para convertirlo a un arbol binario? (y/n) ").lower()
+
+# Opcional: Cargar un árbol binario desde un archivo de texto
+a = input("¿Desea cargar un archivo para convertirlo en un árbol binario? (y/n) ").lower()
 
 while a == "y":
     b = input("Ingrese el nombre de su archivo: ")
     arbol_cargado = cargar_arbol_desde_txt(b)
 
     if arbol_cargado is None:
-        print("No se encontro el archivo")
+        print("No se encontró el archivo.")
     else:
-        arbol_cargado = cargar_arbol_desde_txt(b)
-        print(arbol_cargado)
+        # Jugar con el árbol cargado
+        print("\nÁrbol cargado desde el archivo:")
+        jugar_adivinanzas(arbol_cargado)
         break
