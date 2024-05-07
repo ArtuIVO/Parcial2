@@ -4,6 +4,66 @@ class Nodo:
         self.izquierda = izquierda
         self.derecha = derecha
 
+    def __str__(self):
+        """Devuelve una representación en cadena del nodo y sus subárboles."""
+        return self._str_recursive(self)
+
+    def _str_recursive(self, nodo, depth=0):
+        """Recorrido recursivo para generar la representación en cadena del árbol."""
+        if nodo is None:
+            return ""
+
+        # Espacios para la indentación según la profundidad
+        indent = "  " * depth
+
+        # Representación del nodo actual
+        representation = f"{indent}- {nodo.pregunta}\n"
+
+        # Representación de los subárboles izquierdo y derecho recursivamente
+        if nodo.izquierda:
+            representation += self._str_recursive(nodo.izquierda, depth + 1)
+        if nodo.derecha:
+            representation += self._str_recursive(nodo.derecha, depth + 1)
+
+        return representation
+
+
+def reconstruir_arbol(preorder, inorder):
+    """Reconstruye un árbol binario a partir de los recorridos preorder e inorder."""
+    if not preorder or not inorder:
+        return None
+
+    raiz_val = preorder[0]
+    raiz = Nodo(raiz_val)
+
+    # Encontrar índice de la raíz en el recorrido inorder
+    raiz_index = inorder.index(raiz_val)
+
+    # Recursivamente construir subárboles izquierdo y derecho
+    raiz.izquierda = reconstruir_arbol(preorder[1:raiz_index + 1], inorder[:raiz_index])
+    raiz.derecha = reconstruir_arbol(preorder[raiz_index + 1:], inorder[raiz_index + 1:])
+
+    return raiz
+
+
+def cargar_arbol_desde_txt(archivo):
+    """Carga un árbol binario desde un archivo de texto con recorridos preorder e inorder."""
+    with open(archivo, 'r') as f:
+        lineas = f.readlines()
+
+    # Encontrar los índices donde comienzan los recorridos en el archivo
+    pre_idx = lineas.index("Recorrido Preorder:\n") + 1
+    in_idx = lineas.index("Recorrido Inorder:\n") + 1
+
+    # Obtener listas de recorridos desde el archivo
+    preorder = [line.strip() for line in lineas[pre_idx:in_idx - 1]]
+    inorder = [line.strip() for line in lineas[in_idx:-1]]
+
+    # Reconstruir el árbol a partir de los recorridos preorder e inorder
+    arbol = reconstruir_arbol(preorder, inorder)
+
+    return arbol
+
 
 def preorder(nodo):
     """Retorna una cadena con el recorrido preorder del árbol."""
@@ -60,7 +120,7 @@ def jugar_adivinanzas(nodo):
             jugar_adivinanzas(nodo.derecha)
         else:
             # Si no se sabe la respuesta, se solicita al jugador la nueva pregunta y respuesta.
-            objeto = input("No sé qué es. ¿Qué es el objeto/animal/personaje que estabas pensando? ")
+            objeto = input("No sé qué es. ¿Qué es el objeto/animal/personaje que estabas pensando? ").lower()
             nueva_pregunta = input("Escribe una pregunta que distinga {} de {}. ".format(objeto, nodo.pregunta))
             respuesta_nueva_pregunta = input("¿Cuál sería la respuesta a tu pregunta? (y/n) ")
 
@@ -91,3 +151,15 @@ while jugar_de_nuevo == "y":
 print("¡Gracias por jugar!")
 print("Exportando arbol a txt")
 exportar_arbol(arbol, "arbol.txt")
+a = input("Desea cargar un archivo para convertirlo a un arbol binario? (y/n) ").lower()
+
+while a == "y":
+    b = input("Ingrese el nombre de su archivo: ")
+    arbol_cargado = cargar_arbol_desde_txt(b)
+
+    if arbol_cargado is None:
+        print("No se encontro el archivo")
+    else:
+        arbol_cargado = cargar_arbol_desde_txt(b)
+        print(arbol_cargado)
+        break
